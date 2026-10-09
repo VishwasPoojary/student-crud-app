@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management System | CRUD Application</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>StudentHub</h1>
+          <span class="subtitle">MongoDB CRUD Application</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <div class="db-status-badge" id="dbStatus">
+          <span class="status-dot"></span>
+          <span class="status-label">MongoDB Connected</span>
+        </div>
+        <button class="btn btn-primary" id="openAddModalBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Add Student</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <!-- Quick Stats Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Total Students</span>
+          <h3 class="stat-value" id="statTotalStudents">0</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Courses Offered</span>
+          <h3 class="stat-value" id="statTotalCourses">0</h3>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-emerald">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Database Collection</span>
+          <h3 class="stat-value stat-code">students</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Card -->
+    <section class="content-card">
+      <!-- Toolbar: Search & Filters -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" id="searchInput" placeholder="Search by name, email, or course..." autocomplete="off">
+          <button class="clear-search-btn" id="clearSearchBtn" aria-label="Clear search" hidden>&times;</button>
+        </div>
+
+        <div class="filter-group">
+          <div class="select-wrapper">
+            <select id="courseFilter" aria-label="Filter by course">
+              <option value="">All Courses</option>
+            </select>
+          </div>
+
+          <div class="select-wrapper">
+            <select id="yearFilter" aria-label="Filter by year">
+              <option value="">All Years</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+            </select>
+          </div>
+
+          <button class="btn btn-secondary icon-only-btn" id="refreshBtn" title="Refresh data">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Students Table View -->
+      <div class="table-responsive" id="tableContainer" hidden>
+        <table class="students-table" id="studentsTable">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Email</th>
+              <th>Course</th>
+              <th>Academic Year</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <!-- Dynamic rows injected here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Loading State Indicator -->
+      <div class="state-container loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p>Loading student records from MongoDB...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="state-container empty-state" id="emptyState" hidden>
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <h4 id="emptyTitle">No Students Found</h4>
+        <p id="emptyDescription">There are currently no student records in the MongoDB database.</p>
+        <button class="btn btn-primary" id="emptyAddBtn">Add Your First Student</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add / Edit Student Dialog Modal -->
+  <dialog id="studentDialog" class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="dialogTitle">Add New Student</h2>
+          <p class="modal-subtitle" id="dialogSubtitle">Enter the student's academic and contact details.</p>
+        </div>
+        <button type="button" class="close-btn" id="closeDialogBtn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <form id="studentForm" novalidate>
+        <input type="hidden" id="studentId" name="studentId">
+
+        <div class="form-group">
+          <label for="studentName">Full Name <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="text" id="studentName" name="name" placeholder="e.g. Vishwas J" required autocomplete="name">
+          </div>
+          <span class="field-error" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="studentEmail">Email Address <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="email" id="studentEmail" name="email" placeholder="e.g. vishwas@gmail.com" required autocomplete="email">
+          </div>
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="studentCourse">Course <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="text" id="studentCourse" name="course" placeholder="e.g. BCA, MCA, B.Tech" required>
+            </div>
+            <span class="field-error" id="courseError"></span>
+          </div>
+
+          <div class="form-group col-6">
+            <label for="studentYear">Year of Study <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <input type="number" id="studentYear" name="year" min="1" max="8" placeholder="e.g. 3" required>
+            </div>
+            <span class="field-error" id="yearError"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelDialogBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveStudentBtn">
+            <span class="btn-text" id="saveBtnText">Save Student</span>
+            <span class="btn-spinner" id="saveBtnSpinner" hidden></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Delete Confirmation Modal Dialog -->
+  <dialog id="deleteDialog" class="modal-dialog delete-dialog">
+    <div class="modal-content">
+      <div class="delete-icon-wrapper">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </div>
+      <h3 class="delete-title">Delete Student Record</h3>
+      <p class="delete-desc">Are you sure you want to permanently delete <strong id="deleteStudentName">this student</strong> from the MongoDB database? This action cannot be undone.</p>
+      
+      <div class="modal-footer delete-footer">
+        <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+          <span class="btn-text">Yes, Delete</span>
+          <span class="btn-spinner" id="deleteBtnSpinner" hidden></span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+
+  <!-- Client JavaScript -->
+  <script src="/static/script.js"></script>
+</body>
+</html>
