@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // State
   let allStudents = [];
   let studentToDelete = null;
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
   // DOM Elements
   const tableContainer = document.getElementById('tableContainer');
@@ -161,7 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setViewState('loading');
 
     try {
-      const response = await fetch('/students');
+      const response = await fetch('/students', {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.status === 401) {
+        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP error ${response.status}`);
@@ -336,10 +347,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify(studentData)
       });
+
+      if (response.status === 401) {
+        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
 
       const data = await response.json();
 
@@ -370,8 +387,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const response = await fetch(`/students/${encodeURIComponent(studentToDelete.id)}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': csrfToken
+        }
       });
+
+      if (response.status === 401) {
+        window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
 
       const data = await response.json();
 
